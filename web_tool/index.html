@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            background: #333;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: #333;
+            border-bottom: 2px solid #c7c7c7;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .matrix-input {
+            display: grid;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .matrix-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .matrix-input input {
+            width: 60px;
+            text-align: center;
+        }
+
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f8ff;
+            border: 1px solid #0066cc;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h3 {
+            margin: 0 0 10px 0;
+            color: #0066cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Calculator</h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(0)">Bisection</button>
+            <button class="tab" onclick="switchTab(1)">False Position</button>
+            <button class="tab" onclick="switchTab(2)">Newton</button>
+            <button class="tab" onclick="switchTab(3)">Secant</button>
+            <button class="tab" onclick="switchTab(4)">Cramer</button>
+        </div>
+
+        <!-- Bisection -->
+        <div class="tab-content active" id="tab0">
+            <div class="form-group">
+                <label>f(x)</label>
+                <input type="text" id="bisection_eq" value="x^3 + 3*x^2 - 1" placeholder="x^3 + 3*x^2 - 1">
+            </div>
+            <div class="form-group">
+                <label>a</label>
+                <input type="number" id="bisection_a" value="0" step="any">
+            </div>
+            <div class="form-group">
+                <label>b</label>
+                <input type="number" id="bisection_b" value="1" step="any">
+            </div>
+            <div class="form-group">
+                <label>Tolerance</label>
+                <input type="number" id="bisection_tol" value="0.000001" step="any">
+            </div>
+            <div class="form-group">
+                <label>Decimals</label>
+                <input type="number" id="bisection_dec" value="10" min="1" max="15">
+            </div>
+            <button onclick="calculateBisection()">Calculate</button>
+            <div class="result" id="result0"></div>
+        </div>
+
+        <div class="tab-content" id="tab1">
+            <div class="form-group">
+                <label>f(x)</label>
+                <input type="text" id="false_eq" value="x^4 + 2*x^2 - x - 3" placeholder="x^4 + 2*x^2 - x - 3">
+            </div>
+            <div class="form-group">
+                <label>a</label>
+                <input type="number" id="false_a" value="-1.5" step="any">
+            </div>
+            <div class="form-group">
+                <label>b</label>
+                <input type="number" id="false_b" value="0.5" step="any">
+            </div>
+            <div class="form-group">
+                <label>Tolerance</label>
+                <input type="number" id="false_tol" value="0.000001" step="any">
+            </div>
+            <div class="form-group">
+                <label>Decimals</label>
+                <input type="number" id="false_dec" value="6" min="1" max="15">
+            </div>
+            <button onclick="calculateFalsePosition()">Calculate</button>
+            <div class="result" id="result1"></div>
+        </div>
+
+        <div class="tab-content" id="tab2">
+            <div class="form-group">
+                <label>f(x)</label>
+                <input type="text" id="newton_eq" value="x^4 + 2*x^2 - x - 3" placeholder="x^4 + 2*x^2 - x - 3">
+            </div>
+            <div class="form-group">
+                <label>x₀</label>
+                <input type="number" id="newton_x0" value="1" step="any">
+            </div>
+            <div class="form-group">
+                <label>Tolerance</label>
+                <input type="number" id="newton_tol" value="0.000001" step="any">
+            </div>
+            <div class="form-group">
+                <label>Decimals</label>
+                <input type="number" id="newton_dec" value="8" min="1" max="15">
+            </div>
+            <button onclick="calculateNewton()">Calculate</button>
+            <div class="result" id="result2"></div>
+        </div>
+
+        <div class="tab-content" id="tab3">
+            <div class="form-group">
+                <label>f(x)</label>
+                <input type="text" id="secant_eq" value="sin(x) - x^2" placeholder="sin(x) - x^2">
+            </div>
+            <div class="form-group">
+                <label>x₀</label>
+                <input type="number" id="secant_x0" value="0.75" step="any">
+            </div>
+            <div class="form-group">
+                <label>x₁</label>
+                <input type="number" id="secant_x1" value="1.0" step="any">
+            </div>
+            <div class="form-group">
+                <label>Tolerance</label>
+                <input type="number" id="secant_tol" value="0.001" step="any">
+            </div>
+            <div class="form-group">
+                <label>Decimals</label>
+                <input type="number" id="secant_dec" value="6" min="1" max="15">
+            </div>
+            <button onclick="calculateSecant()">Calculate</button>
+            <div class="result" id="result3"></div>
+        </div>
+
+        <div class="tab-content" id="tab4">
+            <div class="size-selector">
+                <label>Matrix Size:</label>
+                <select id="cramer_size" onchange="updateCramerMatrix()">
+                    <option value="2">2×2</option>
+                    <option value="3" selected>3×3</option>
+                    <option value="4">4×4</option>
+                    <option value="5">5×5</option>
+                    <option value="6">6×6</option>
+                    <option value="7">7×7</option>
+                    <option value="8">8×8</option>
+                    <option value="9">9×9</option>
+                    <option value="10">10×10</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Matrix A</label>
+                <div class="matrix-input" id="cramer_matrix"></div>
+            </div>
+            <div class="form-group">
+                <label>Vector b</label>
+                <div class="matrix-input" id="cramer_vector"></div>
+            </div>
+            <button onclick="calculateCramer()">Calculate</button>
+            <div class="result" id="result4"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(index) {
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        // Initialize Cramer matrix
+        function updateCramerMatrix() {
+            const size = parseInt(document.getElementById('cramer_size').value);
+            const matrixDiv = document.getElementById('cramer_matrix');
+            const vectorDiv = document.getElementById('cramer_vector');
+
+            matrixDiv.innerHTML = '';
+            vectorDiv.innerHTML = '';
+
+            const defaultMatrix = [
+                [1, 2, 1],
+                [2, 2, 3],
+                [-1, -3, 0]
+            ];
+            const defaultVector = [0, 3, 2];
+
+            for (let i = 0; i < size; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
+                for (let j = 0; j < size; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = (i < defaultMatrix.length && j < defaultMatrix[i].length) ? defaultMatrix[i][j] : 0;
+                    input.id = `matrix_${i}_${j}`;
+                    row.appendChild(input);
+                }
+                matrixDiv.appendChild(row);
+            }
+
+            const vectorRow = document.createElement('div');
+            vectorRow.className = 'matrix-row';
+            for (let i = 0; i < size; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.value = i < defaultVector.length ? defaultVector[i] : 0;
+                input.id = `vector_${i}`;
+                vectorRow.appendChild(input);
+            }
+            vectorDiv.appendChild(vectorRow);
+        }
+
+        updateCramerMatrix();
+
+        // Helper function to evaluate expression
+        function evaluateFunc(eq, x) {
+            try {
+                const eq_py = eq.replace(/\^/g, '**')
+                    .replace(/sin\(/g, 'Math.sin(')
+                    .replace(/cos\(/g, 'Math.cos(')
+                    .replace(/tan\(/g, 'Math.tan(')
+                    .replace(/sqrt\(/g, 'Math.sqrt(')
+                    .replace(/exp\(/g, 'Math.exp(')
+                    .replace(/log\(/g, 'Math.log(')
+                    .replace(/abs\(/g, 'Math.abs(');
+                return Function('x', 'Math', `return ${eq_py}`)(x, Math);
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        // CSV download function
+        function downloadCSV(data, filename) {
+            let csv = '';
+            data.forEach(row => {
+                csv += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Calculate Bisection
+        function calculateBisection() {
+            const eq = document.getElementById('bisection_eq').value;
+            const a = parseFloat(document.getElementById('bisection_a').value);
+            const b = parseFloat(document.getElementById('bisection_b').value);
+            const tol = parseFloat(document.getElementById('bisection_tol').value);
+            const decimals = parseInt(document.getElementById('bisection_dec').value);
+
+            let iterations = [];
+            let currentA = a;
+            let currentB = b;
+
+            for (let i = 0; i < 100; i++) {
+                const m = (currentA + currentB) / 2;
+                const fa = evaluateFunc(eq, currentA);
+                const fm = evaluateFunc(eq, m);
+                const error = Math.abs(currentB - currentA) / 2;
+
+                iterations.push({
+                    iteration: i + 1,
+                    a: currentA.toFixed(decimals),
+                    b: currentB.toFixed(decimals),
+                    m: m.toFixed(decimals),
+                    fa: fa.toFixed(decimals),
+                    fm: fm.toFixed(decimals),
+                    error: error.toFixed(decimals)
+                });
+
+                if (error < tol) break;
+
+                if (fm * fa < 0) {
+                    currentB = m;
+                } else {
+                    currentA = m;
+                }
+            }
+
+            const csvData = [
+                ['Iteration', 'a', 'b', 'm', 'f(a)', 'f(m)', 'Error'],
+                ...iterations.map(it => [it.iteration, it.a, it.b, it.m, it.fa, it.fm, it.error]),
+                [],
+                ['Parameters', 'Values'],
+                ['Equation', eq],
+                ['Initial a', a],
+                ['Initial b', b],
+                ['Tolerance', tol]
+            ];
+
+            downloadCSV(csvData, 'Bisection_Result.csv');
+            showResult(0, `✅ คำนวณ ${iterations.length} รอบ ราก ≈ ${iterations[iterations.length - 1].m}<br>📥 ดาวน์โหลดไฟล์ CSV แล้ว!`);
+        }
+
+        function calculateFalsePosition() {
+            const eq = document.getElementById('false_eq').value;
+            const a = parseFloat(document.getElementById('false_a').value);
+            const b = parseFloat(document.getElementById('false_b').value);
+            const tol = parseFloat(document.getElementById('false_tol').value);
+            const decimals = parseInt(document.getElementById('false_dec').value);
+
+            let iterations = [];
+            let currentA = a;
+            let currentB = b;
+            let mOld = 0;
+
+            for (let i = 0; i < 100; i++) {
+                const fa = evaluateFunc(eq, currentA);
+                const fb = evaluateFunc(eq, currentB);
+
+                if (Math.abs(fb - fa) < 1e-10) break;
+
+                const m = (currentA * fb - currentB * fa) / (fb - fa);
+                const fm = evaluateFunc(eq, m);
+                const error = i === 0 ? 1.0 : Math.abs((m - mOld) / m);
+
+                iterations.push({
+                    iteration: i + 1,
+                    a: currentA.toFixed(decimals),
+                    b: currentB.toFixed(decimals),
+                    m: m.toFixed(decimals),
+                    fa: fa.toFixed(decimals),
+                    fb: fb.toFixed(decimals),
+                    fm: fm.toFixed(decimals),
+                    error: error.toFixed(decimals)
+                });
+
+                if (error < tol) break;
+
+                mOld = m;
+                if (fm * fa < 0) {
+                    currentB = m;
+                } else {
+                    currentA = m;
+                }
+            }
+
+            const csvData = [
+                ['Round', 'a', 'b', 'm', 'f(a)', 'f(b)', 'f(m)', 'Error'],
+                ...iterations.map(it => [it.iteration, it.a, it.b, it.m, it.fa, it.fb, it.fm, it.error]),
+                [],
+                ['Parameters', 'Values'],
+                ['Equation', eq],
+                ['Initial a', a],
+                ['Initial b', b],
+                ['Tolerance', tol]
+            ];
+
+            downloadCSV(csvData, 'False_Position_Result.csv');
+            showResult(1, `✅ คำนวณ ${iterations.length} รอบ ราก ≈ ${iterations[iterations.length - 1].m}<br>📥 ดาวน์โหลดไฟล์ CSV แล้ว!`);
+        }
+
+        function calculateNewton() {
+            const eq = document.getElementById('newton_eq').value;
+            const x0 = parseFloat(document.getElementById('newton_x0').value);
+            const tol = parseFloat(document.getElementById('newton_tol').value);
+            const decimals = parseInt(document.getElementById('newton_dec').value);
+
+            let iterations = [];
+            let xCurr = x0;
+            const h = 1e-5;
+
+            for (let i = 0; i < 100; i++) {
+                const fx = evaluateFunc(eq, xCurr);
+                const fxh = evaluateFunc(eq, xCurr + h);
+                const fpx = (fxh - fx) / h;
+
+                if (Math.abs(fpx) < 1e-10) break;
+
+                const xNext = xCurr - (fx / fpx);
+                const error = Math.abs(xNext - xCurr);
+
+                iterations.push({
+                    iteration: i + 1,
+                    x: xCurr.toFixed(decimals),
+                    fx: fx.toFixed(decimals),
+                    fpx: fpx.toFixed(decimals),
+                    xNext: xNext.toFixed(decimals),
+                    error: error.toFixed(decimals)
+                });
+
+                if (error < tol) break;
+                xCurr = xNext;
+            }
+
+            const csvData = [
+                ['Iteration', 'x_(i-1)', 'f(x)', "f'(x)", 'x_(i+1)', 'Error'],
+                ...iterations.map(it => [it.iteration, it.x, it.fx, it.fpx, it.xNext, it.error]),
+                [],
+                ['Parameters', 'Values'],
+                ['f(x)', eq],
+                ['x0', x0],
+                ['Tolerance', tol]
+            ];
+
+            downloadCSV(csvData, 'Newton_Result.csv');
+            showResult(2, `✅ คำนวณ ${iterations.length} รอบ ราก ≈ ${iterations[iterations.length - 1].xNext}<br>📥 ดาวน์โหลดไฟล์ CSV แล้ว!`);
+        }
+
+        function calculateSecant() {
+            const eq = document.getElementById('secant_eq').value;
+            const x0 = parseFloat(document.getElementById('secant_x0').value);
+            const x1 = parseFloat(document.getElementById('secant_x1').value);
+            const tol = parseFloat(document.getElementById('secant_tol').value);
+            const decimals = parseInt(document.getElementById('secant_dec').value);
+
+            let iterations = [];
+            let xPrev = x0;
+            let xCurr = x1;
+
+            for (let i = 0; i < 100; i++) {
+                const fxCurr = evaluateFunc(eq, xCurr);
+                const fxPrev = evaluateFunc(eq, xPrev);
+
+                if (Math.abs(fxCurr - fxPrev) < 1e-10) break;
+
+                const xNext = xCurr - (fxCurr * (xCurr - xPrev)) / (fxCurr - fxPrev);
+                const error = Math.abs(xNext - xCurr);
+
+                iterations.push({
+                    iteration: i + 1,
+                    xPrev: xPrev.toFixed(decimals),
+                    xCurr: xCurr.toFixed(decimals),
+                    fxPrev: fxPrev.toFixed(decimals),
+                    fxCurr: fxCurr.toFixed(decimals),
+                    xNext: xNext.toFixed(decimals),
+                    error: error.toFixed(decimals)
+                });
+
+                if (error < tol) break;
+
+                xPrev = xCurr;
+                xCurr = xNext;
+            }
+
+            const csvData = [
+                ['Iteration', 'x_(i-1)', 'x_i', 'f(x_(i-1))', 'f(x_i)', 'x_(i+1)', 'Error'],
+                ...iterations.map(it => [it.iteration, it.xPrev, it.xCurr, it.fxPrev, it.fxCurr, it.xNext, it.error]),
+                [],
+                ['Parameters', 'Values'],
+                ['f(x)', eq],
+                ['x0', x0],
+                ['x1', x1],
+                ['Tolerance', tol]
+            ];
+
+            downloadCSV(csvData, 'Secant_Result.csv');
+            showResult(3, `✅ คำนวณ ${iterations.length} รอบ ราก ≈ ${iterations[iterations.length - 1].xNext}<br>📥 ดาวน์โหลดไฟล์ CSV แล้ว!`);
+        }
+
+        function calculateCramer() {
+            const size = parseInt(document.getElementById('cramer_size').value);
+            const matrix = [];
+            const vector = [];
+
+            for (let i = 0; i < size; i++) {
+                const row = [];
+                for (let j = 0; j < size; j++) {
+                    row.push(parseFloat(document.getElementById(`matrix_${i}_${j}`).value));
+                }
+                matrix.push(row);
+            }
+
+            for (let i = 0; i < size; i++) {
+                vector.push(parseFloat(document.getElementById(`vector_${i}`).value));
+            }
+
+            const detA = determinant(matrix);
+
+            if (Math.abs(detA) < 1e-10) {
+                showResult(4, "❌ ข้อผิดพลาด: เมทริกซ์ singular (determinant = 0)");
+                return;
+            }
+
+            const solutions = [];
+            for (let i = 0; i < size; i++) {
+                const matrixXi = matrix.map((row, idx) =>
+                    row.map((val, j) => j === i ? vector[idx] : val)
+                );
+                const detXi = determinant(matrixXi);
+                solutions.push(detXi / detA);
+            }
+
+            const csvData = [
+                ['System: AX = B'],
+                [],
+                ['Matrix A', '', ...Array(size).fill(''), 'X', 'Vector b']
+            ];
+
+            for (let i = 0; i < size; i++) {
+                const row = [];
+                for (let j = 0; j < size; j++) {
+                    row.push(matrix[i][j]);
+                }
+                row.push('', `x${i + 1}`, vector[i]);
+                csvData.push(row);
+            }
+
+            csvData.push(
+                [],
+                ['Solutions:'],
+                ...solutions.map((sol, i) => [`x${i + 1}`, sol]),
+                ['det(A)', detA]
+            );
+
+            downloadCSV(csvData, 'Cramer_Rule_Result.csv');
+            showResult(4, `✅ คำนวณค่าเสร็จสิ้น!<br>${solutions.map((s, i) => `x${i + 1} = ${s.toFixed(6)}`).join('<br>')}<br>📥 ดาวน์โหลดไฟล์ CSV แล้ว!`);
+        }
+
+        function determinant(matrix) {
+            const n = matrix.length;
+            if (n === 1) return matrix[0][0];
+            if (n === 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+            let det = 0;
+            for (let i = 0; i < n; i++) {
+                const minor = matrix.slice(1).map(row => row.filter((_, j) => j !== i));
+                det += matrix[0][i] * Math.pow(-1, i) * determinant(minor);
+            }
+            return det;
+        }
+
+        function showResult(tabIndex, message) {
+            const resultDiv = document.getElementById(`result${tabIndex}`);
+            resultDiv.innerHTML = `<h3>ผลลัพธ์</h3><p>${message}</p>`;
+            resultDiv.classList.add('show');
+        }
+    </script>
+</body>
+
+</html>
